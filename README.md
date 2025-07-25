@@ -1,164 +1,171 @@
-# Sistema Pan-Tilt con Joystick y Servos MG90S
+# ESP32 Pan-Tilt System with Joystick Control
 
-Este proyecto controla dos servos MG90S de 180 grados usando un joystick analógico para crear un sistema Pan-Tilt. El sistema incluye calibración automática, suavizado de movimientos y **mantiene la última posición** sin volver al centro.
+This project controls two MG90S 180-degree servos using an analog joystick to create a Pan-Tilt system. The system includes automatic calibration, smooth movements, and **maintains the last position** without returning to center.
 
-## 🎯 Características Principales
+## Key Features
 
-- ✅ **Mantiene la última posición**: Los servos no vuelven al centro cuando sueltas el joystick
-- ✅ **Calibración automática**: Detecta automáticamente los rangos del joystick
-- ✅ **Zona muerta configurable**: Evita movimientos accidentales
-- ✅ **Movimientos suaves**: Sin vibraciones ni movimientos bruscos
-- ✅ **Monitor serial detallado**: Información en tiempo real
+- **Maintains last position**: Servos don't return to center when you release the joystick
+- **Automatic calibration**: Automatically detects joystick ranges
+- **Configurable dead zone**: Prevents accidental movements
+- **Smooth movements**: No vibrations or jerky movements
+- **Laser pointer integration**: Built-in laser for pointing/tracking
+- **Real-time serial monitoring**: Detailed status information
 
-## 🔧 Componentes Requeridos
+## Required Components
 
-- ESP32 (cualquier modelo)
-- 2x Servos MG90S (180 grados)
-- 1x Joystick analógico (GND, 3V, VRX, VRY, SW)
-- Soporte Pan-Tilt para los servos
-- Fuente de alimentación de 5V para los servos
-- Cables de conexión
+- ESP32 (any model)
+- 2x MG90S Servos (180 degrees)
+- 1x Analog joystick (GND, 3V, VRX, VRY, SW)
+- Pan-Tilt mount for servos
+- 5V power supply for servos
+- Connection cables
 
-## 🔌 Conexiones
+## Connections
 
 ### Joystick
-- **GND** → GND del ESP32
-- **3V** → 3.3V del ESP32
+- **GND** → ESP32 GND
+- **3V** → ESP32 3.3V
 - **VRX** → GPIO 32 (ADC1_CH4)
 - **VRY** → GPIO 33 (ADC1_CH5)
 - **SW** → GPIO 25
 
 ### Servos
-- **Servo Pan (Horizontal)**
-  - Señal → GPIO 13
-  - VCC → 5V (fuente externa recomendada)
-  - GND → GND común
+- **Pan Servo (Horizontal)**
+  - Signal → GPIO 13
+  - VCC → 5V (external power supply recommended)
+  - GND → Common GND
 
-- **Servo Tilt (Vertical)**
-  - Señal → GPIO 14
-  - VCC → 5V (fuente externa recomendada)
-  - GND → GND común
+- **Tilt Servo (Vertical)**
+  - Signal → GPIO 14
+  - VCC → 5V (external power supply recommended)
+  - GND → Common GND
 
-## 🚀 Cómo Funciona
+### Laser Module
+- **Signal** → GPIO 26
+- **VCC** → 5V
+- **GND** → Common GND
 
-### 1. **Al hacer Upload:**
+## How It Works
+
+### 1. **On Upload:**
 ```
-=== SISTEMA PAN-TILT CON JOYSTICK ===
-Inicializando...
-Servos configurados en posición central (90°)
-Presiona el botón del joystick para calibrar...
-Mueve el joystick en todas las direcciones durante la calibración
+=== PAN-TILT SYSTEM WITH JOYSTICK ===
+Initializing...
+Servos configured at center position (90°)
+Laser automatically turned on
+System using optimized calibration values!
+System ready to use!
+Move joystick to control servos
+Press button to recalibrate if needed
 ================================================
 ```
 
-### 2. **Calibración (5 segundos):**
+### 2. **Calibration (5 seconds):**
 ```
-=== CALIBRACIÓN DEL JOYSTICK ===
-Mueve el joystick en todas las direcciones durante 5 segundos
-Asegúrate de llegar a los extremos en todas las direcciones
-Progreso: 20% | X: 100-3900, Y: 150-3850
-Progreso: 40% | X: 50-3950, Y: 100-3900
-...
-=== CALIBRACIÓN COMPLETADA ===
-Eje X: 100 - 3900 (Centro: 2000)
-Eje Y: 150 - 3850 (Centro: 2000)
-Rango X: 3800, Rango Y: 3700
-El sistema está listo para usar!
+=== JOYSTICK CALIBRATION ===
+Move joystick in all directions for 5 seconds
+Make sure to reach all extremes
+=== CALIBRATION COMPLETED ===
+X Axis: 100 - 3900 (Center: 2000)
+Y Axis: 150 - 3850 (Center: 2000)
+Position restored: Pan 90.0°, Tilt 90.0°
+System ready to use!
 ================================================
 ```
 
-### 3. **Uso Normal:**
-```
-Pan: 45° | Tilt: 135° | Joystick X: 1500, Y: 3500 | Zona muerta: No
-Pan: 90° | Tilt: 90° | Joystick X: 2000, Y: 2000 | Zona muerta: Sí
-```
+## Adjustable Configuration
 
-## ⚙️ Configuración Ajustable
-
-### Pines (modificables en el código)
+### Pins (modifiable in code)
 ```cpp
-#define JOYSTICK_VRX_PIN 32  // Eje X del joystick
-#define JOYSTICK_VRY_PIN 33  // Eje Y del joystick
-#define JOYSTICK_SW_PIN  25  // Botón del joystick
-#define SERVO_PAN_PIN    13  // Servo horizontal
-#define SERVO_TILT_PIN   14  // Servo vertical
+#define JOYSTICK_VRX_PIN 32  // Joystick X axis
+#define JOYSTICK_VRY_PIN 33  // Joystick Y axis
+#define JOYSTICK_SW_PIN  25  // Joystick button
+#define SERVO_PAN_PIN    13  // Horizontal servo
+#define SERVO_TILT_PIN   14  // Vertical servo
+#define LASER_PIN        26  // Laser module
 ```
 
-### Parámetros de Comportamiento
+### Behavior Parameters
 ```cpp
-#define JOYSTICK_DEADZONE 100     // Zona muerta (0-500)
-#define JOYSTICK_SMOOTHING 0.3    // Suavizado (0.0-1.0)
-#define SERVO_MIN_ANGLE  0        // Ángulo mínimo
-#define SERVO_MAX_ANGLE  180      // Ángulo máximo
-#define SERVO_CENTER_ANGLE 90     // Posición central
+#define JOYSTICK_DEADZONE 300     // Dead zone (0-500)
+#define JOYSTICK_SMOOTHING 0.08   // Smoothing factor (0.0-1.0)
+#define JOYSTICK_MIN_CHANGE 0.5   // Minimum change threshold
+#define SERVO_MIN_ANGLE  0        // Minimum angle
+#define SERVO_MAX_ANGLE  180      // Maximum angle
+#define SERVO_CENTER_ANGLE 90     // Center position
 ```
 
-## 🎮 Instrucciones de Uso
+## Usage Instructions
 
-1. **Compila y sube el código** al ESP32
-2. **Abre el Monitor Serial** (115200 baudios)
-3. **Presiona el botón del joystick** para calibrar
-4. **Mueve el joystick** en todas las direcciones durante 5 segundos
-5. **¡Listo!** Ahora controla los servos:
-   - **Eje X**: Control horizontal (Pan) - Izquierda/Derecha
-   - **Eje Y**: Control vertical (Tilt) - Arriba/Abajo
-   - **Suelta el joystick**: Los servos mantienen su posición
+1. **Compile and upload the code** to ESP32
+2. **Open Serial Monitor** (115200 baud)
+3. **Press the joystick button** to calibrate
+4. **Move the joystick** in all directions for 5 seconds
+5. **Ready!** Now control the servos:
+   - **X Axis**: Horizontal control (Pan) - Left/Right
+   - **Y Axis**: Vertical control (Tilt) - Up/Down
+   - **Release joystick**: Servos maintain their position
 
-## 🔧 Ajustes Recomendados
+## Recommended Adjustments
 
-### Si los movimientos son muy lentos:
+### If movements are too slow:
 ```cpp
-#define JOYSTICK_SMOOTHING 0.5  // Aumentar de 0.3 a 0.5
+#define JOYSTICK_SMOOTHING 0.15  // Increase from 0.08 to 0.15
 ```
 
-### Si los movimientos son muy bruscos:
+### If movements are too jerky:
 ```cpp
-#define JOYSTICK_SMOOTHING 0.1  // Disminuir de 0.3 a 0.1
+#define JOYSTICK_SMOOTHING 0.05  // Decrease from 0.08 to 0.05
 ```
 
-### Si el joystick tiene mucho drift:
+### If joystick has too much drift:
 ```cpp
-#define JOYSTICK_DEADZONE 150   // Aumentar de 100 a 150
+#define JOYSTICK_DEADZONE 400   // Increase from 300 to 400
 ```
 
-### Si el joystick es muy sensible:
+### If joystick is too sensitive:
 ```cpp
-#define JOYSTICK_DEADZONE 50    // Disminuir de 100 a 50
+#define JOYSTICK_DEADZONE 200   // Decrease from 300 to 200
 ```
 
-## ⚠️ Notas Importantes
+## Important Notes
 
-- **Alimentación de Servos**: Los servos MG90S pueden consumir hasta 500mA cada uno. Se recomienda usar una fuente de alimentación externa de 5V.
-- **Calibración**: Si los movimientos no son precisos, recalibra el joystick presionando el botón.
-- **Zona Muerta**: El joystick debe estar en la zona muerta para mantener la posición. Si se mueve ligeramente, los servos se moverán.
-- **Monitor Serial**: Mantén el monitor serial abierto para ver el estado del sistema.
+- **Servo Power**: MG90S servos can consume up to 500mA each. Use an external 5V power supply.
+- **Calibration**: If movements are not precise, recalibrate the joystick by pressing the button.
+- **Dead Zone**: The joystick must be in the dead zone to maintain position. If it moves slightly, servos will move.
+- **Serial Monitor**: Keep the serial monitor open to see system status.
 
-## 🛠️ Solución de Problemas
+## Troubleshooting
 
-### Los servos no se mueven
-- Verifica las conexiones de alimentación
-- Asegúrate de que los pines de señal estén correctos
-- Revisa que la calibración se haya completado
+### Servos don't move
+- Check power supply connections
+- Ensure signal pins are correct
+- Verify calibration is complete
 
-### Movimientos erráticos
-- Recalibra el joystick
-- Ajusta la zona muerta
-- Verifica que no haya interferencias en los cables
+### Erratic movements
+- Recalibrate the joystick
+- Adjust dead zone
+- Check for cable interference
 
-### Movimientos muy lentos o rápidos
-- Ajusta el factor de suavizado (JOYSTICK_SMOOTHING)
-- Modifica el intervalo de actualización (UPDATE_INTERVAL)
+### Movements too slow or fast
+- Adjust smoothing factor (JOYSTICK_SMOOTHING)
+- Modify update interval (UPDATE_INTERVAL)
 
-### Los servos vuelven al centro
-- Verifica que la zona muerta no sea muy grande
-- Asegúrate de que el joystick esté bien calibrado
-- Revisa que las variables `lastValidPanAngle` y `lastValidTiltAngle` se estén actualizando
+### Servos return to center
+- Verify dead zone is not too large
+- Ensure joystick is well calibrated
+- Check that `lastValidPanAngle` and `lastValidTiltAngle` variables are updating
 
-## 📊 Información Técnica
+## Technical Information
 
-- **Frecuencia de actualización**: 50Hz (20ms)
-- **Resolución ADC**: 12 bits (0-4095)
-- **Rango de servos**: 0° - 180°
-- **Posición central**: 90°
-- **Tiempo de calibración**: 5 segundos
-- **Muestras de calibración**: ~500 muestras 
+- **Update frequency**: 50Hz (20ms)
+- **ADC resolution**: 12 bits (0-4095)
+- **Servo range**: 0° - 180°
+- **Center position**: 90°
+- **Calibration time**: 5 seconds
+- **Calibration samples**: ~500 samples
+
+## License
+
+Developed by Omar Florez
+cv.omarflorez.me 

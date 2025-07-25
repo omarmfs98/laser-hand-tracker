@@ -1,5 +1,5 @@
 /*
- * Created by Omar Florez
+ * Developed by Omar Florez
  * cv.omarflorez.me
  * 2025-07-25
  * 
